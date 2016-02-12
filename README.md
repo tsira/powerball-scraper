@@ -16,10 +16,11 @@ Start application
 $ npm start
 ```
 
-and then you can go to your browser and observe results:
+now you can go to your browser and observe results:
 
-latest Powerball jackpot (in cents): [http://localhost:3008/powerboll-jackpot]
-latest Powerball winners numbers: [http://localhost:3008/powerboll-winner-nums]
+latest Powerball jackpot (in cents): [http://localhost:3008/powerboll-jackpot](http://localhost:3008/powerboll-jackpot)
+
+latest Powerball winners numbers:[http://localhost:3008/powerboll-winner-nums](http://localhost:3008/powerboll-winner-nums)
 
 
 ### License
