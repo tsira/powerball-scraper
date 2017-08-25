@@ -1,1 +1,9 @@
 language: node_js
+node_js:
+  - "iojs"
+
+deploy:
+  provider: heroku
+  api_key:
+    secure: "bc807396-9e11-4f1d-b15e-da0d02007deb"
+  app: powerballslack
