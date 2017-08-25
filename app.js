@@ -1,18 +1,19 @@
 import express from 'express';
-import cheerio from 'cheerio';
 import request from 'request';
 import Promise from 'bluebird';
 import NodeCache from 'node-cache';
 
+// var express = require('express');
+// var cheerio = require('cheerio');
+// var request = require('request');
+// var Promise = require('bluebird');
+// var NodeCache = require('node-cache');
+
+
 // Constants
 const PORT = 3008;
-const POWERBALL_URL = 'http://www.powerball.com/pb_home.asp';
 const POWERBALL_WINNUMS_URL = 'http://www.powerball.com/powerball/winnums-text.txt';
-const MILLION_STR = 'million';
-const MILLION = 1000000;
-const CENTS_IN_DOLLAR = 100;
 const CACHE_UPDATE_PERIOD = 1000 * 60;
-const JACKPOT_KEY = 'jackpot';
 const WINNUMS_KEY = 'winnums';
 
 // Init objects
@@ -32,51 +33,6 @@ function getPageContent(url) {
   });
 }
 
-// Parse homepage of the site
-function parseJackpot(source) {
-  const $ = cheerio.load(source, {
-    decodeEntities: false,
-    normalizeWhitespace: false,
-    xmlMode: false,
-  });
-
-  let jackpot;
-
-  try {
-    // try to get specific text from DOM
-    jackpot = $('div[class=content] > table').children().eq(1).children().last().children().text();
-    jackpot = jackpot.toLowerCase();
-
-    // potentially text might be updated and author will remove 'Million'
-    const isMillion = jackpot.indexOf(MILLION_STR) > -1;
-
-    // get only digits
-    let numb = jackpot.match(/\d/g);
-    numb = numb.join('');
-
-    jackpot = Number(numb) * CENTS_IN_DOLLAR;
-
-    if (isMillion) {
-      jackpot = jackpot * MILLION;
-    }
-  } catch (err) {
-    throw new Error('Parsing failed. Cause:', err.message);
-  }
-
-  return jackpot;
-}
-
-// Gets jackpot
-async function getJackpot() {
-  let result = {};
-
-  const pageContent = await getPageContent(POWERBALL_URL);
-  result.powerBallJackpot = parseJackpot(pageContent);
-  result.lastUpdate = new Date();
-
-  return result;
-}
-
 // Get first row from winners list
 async function getWinnerNums() {
   let result = {};
@@ -89,11 +45,6 @@ async function getWinnerNums() {
   }
 
   return result;
-}
-
-// Gets jackpot from cache or updates it
-async function tryToFetchJackpot() {
-  return await tryToFetchCachedData(JACKPOT_KEY, getJackpot);
 }
 
 // Gets jackpot from cache or updates it
@@ -113,13 +64,6 @@ async function tryToFetchCachedData(key, getter) {
   return val;
 }
 
-app.get('/powerboll-jackpot', (req, res) => {
-  tryToFetchJackpot().then((data) => {
-    res.json(data);
-  }, (err) => {
-    res.status(500).json(err);
-  });
-});
 
 app.get('/powerboll-winner-nums', (req, res) => {
   tryToFetchWinnerSum().then((data) => {
